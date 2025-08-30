@@ -19,12 +19,32 @@
 
 #define ARRAY_SIZE(x) (sizeof (x) / sizeof (x[0]))
 
+#include <stdarg.h>
+
+// 日志和结果输出函数声明（所有平台通用）
+void jni_log_output(const char* format, ...);
+void jni_result_output(const char* format, ...);
+void set_jni_log_functions(void (*log_func)(const char*, va_list), void (*result_func)(const char*, va_list));
+
+// 停止执行检查函数（所有平台通用）
+int should_stop_execution(void);
+void set_stop_execution(int should_stop);
+
+#ifdef ANDROID
+#include <android/log.h>
+#define LOG_TAG "NatmapJNI"
+#endif
+
 #define LOG(T) \
-    fprintf (stderr, "[" #T "] %s %s:%d\n", __FUNCTION__, __FILE__, __LINE__);
+    do { \
+        jni_log_output("[" #T "] %s %s:%d", __FUNCTION__, __FILE__, __LINE__); \
+    } while(0)
 
 #define LOGV(T, F, ...)                                                   \
-    fprintf (stderr, "[" #T "] %s %s:%d " F "\n", __FUNCTION__, __FILE__, \
-             __LINE__, __VA_ARGS__);
+    do { \
+        jni_log_output("[" #T "] %s %s:%d " F, __FUNCTION__, __FILE__, \
+                 __LINE__, __VA_ARGS__); \
+    } while(0)
 
 #ifndef container_of
 #define container_of(ptr, type, member)               \

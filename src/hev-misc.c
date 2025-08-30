@@ -23,6 +23,65 @@
 
 #include "hev-misc.h"
 
+// Global pointers to callback function implementations (all platforms)
+static void (*jni_log_func_ptr)(const char* format, va_list args) = NULL;
+static void (*jni_result_func_ptr)(const char* format, va_list args) = NULL;
+
+// Global stop flag (all platforms)
+static volatile int global_should_stop = 0;
+
+#ifdef ANDROID
+#include <stdarg.h>
+#endif
+
+// Set function pointers (called from wrapper initialization)
+void set_jni_log_functions(void (*log_func)(const char*, va_list), void (*result_func)(const char*, va_list)) {
+    jni_log_func_ptr = log_func;
+    jni_result_func_ptr = result_func;
+}
+
+// Implementations that use function pointers (all platforms)
+void jni_log_output(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    
+    if (jni_log_func_ptr) {
+        // Use callback if available
+        jni_log_func_ptr(format, args);
+    } else {
+        // Fallback to stderr
+        vfprintf(stderr, format, args);
+        fprintf(stderr, "\n");
+    }
+    
+    va_end(args);
+}
+
+void jni_result_output(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    
+    if (jni_result_func_ptr) {
+        // Use callback if available
+        jni_result_func_ptr(format, args);
+    } else {
+        // Fallback to stderr
+        vfprintf(stderr, format, args);
+        fprintf(stderr, "\n");
+    }
+    
+    va_end(args);
+}
+
+// Stop execution functions (all platforms)
+int should_stop_execution(void) {
+    return global_should_stop;
+}
+
+void set_stop_execution(int should_stop) {
+    global_should_stop = should_stop;
+}
+
 #if defined(__mips__)
 #if defined(_LP64)
 #define NR_Linux 5000

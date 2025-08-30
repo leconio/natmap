@@ -332,6 +332,13 @@ task_entry (void *data)
             break;
         }
 
+        // Check if execution should be stopped
+        if (should_stop_execution()) {
+            LOGV (E, "%s", "STUN execution stopped by user request");
+            hev_xnsk_kill ();
+            goto exit;
+        }
+
         hev_task_yield (HEV_TASK_WAITIO);
     }
 

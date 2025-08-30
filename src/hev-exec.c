@@ -15,6 +15,10 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
 #include <hev-task-call.h>
 
 #include "hev-conf.h"
@@ -100,10 +104,9 @@ hev_exec_run (int family, unsigned int maddr[4], unsigned short mport,
     default:
         mode = "";
     }
-
+    
     if (!path) {
-        printf ("%s %s %s %s %s %s\n", oaddr, oport, ip4p, iport, mode, iaddr);
-        fflush (stdout);
+        jni_result_output ("%s %s %s %s %s %s", oaddr, oport, ip4p, iport, mode, iaddr);
         return;
     }
 

@@ -22,16 +22,26 @@ endif
 LOCAL_PATH = $(TOP_PATH)
 SRCDIR := $(LOCAL_PATH)/src
 
-include $(CLEAR_VARS)
-include $(LOCAL_PATH)/build.mk
-LOCAL_MODULE    := natmap
-LOCAL_SRC_FILES := $(patsubst $(SRCDIR)/%,src/%,$(SRCFILES))
-LOCAL_C_INCLUDES := \
+# Common configuration
+COMMON_C_INCLUDES := \
 	$(LOCAL_PATH)/third-part/hev-task-system/include \
 	$(LOCAL_PATH)/third-part/hev-task-system/src/lib/rbtree
-LOCAL_CFLAGS += $(VERSION_CFLAGS)
+
+COMMON_CFLAGS := $(VERSION_CFLAGS) -DANDROID
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
-LOCAL_CFLAGS += -mfpu=neon
+COMMON_CFLAGS += -mfpu=neon
 endif
-LOCAL_STATIC_LIBRARIES := hev-task-system
-include $(BUILD_EXECUTABLE)
+
+COMMON_STATIC_LIBRARIES := hev-task-system
+COMMON_LDLIBS := -llog
+
+# Build natmap JNI shared library (main library for Android app)
+include $(CLEAR_VARS)
+include $(LOCAL_PATH)/build.mk
+LOCAL_MODULE := natmap-jni
+LOCAL_SRC_FILES := $(patsubst $(SRCDIR)/%,src/%,$(SRCFILES))
+LOCAL_C_INCLUDES := $(COMMON_C_INCLUDES)
+LOCAL_CFLAGS += $(COMMON_CFLAGS) -DJNI_BUILD
+LOCAL_STATIC_LIBRARIES := $(COMMON_STATIC_LIBRARIES)
+LOCAL_LDLIBS := $(COMMON_LDLIBS)
+include $(BUILD_SHARED_LIBRARY)
