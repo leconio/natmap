@@ -100,7 +100,7 @@ static void jni_result_capture_impl(const char* format, va_list args) {
 }
 
 JNIEXPORT void JNICALL
-Java_me_aside0_minlan_NatmapPlugin_nativeExecuteNatmap(JNIEnv *env, jobject thiz,
+Java_me_aside0_exposedadb_natmap_NatmapPlugin_nativeExecuteNatmap(JNIEnv *env, jobject thiz,
                                                       jobjectArray args,
                                                       jobject callback) {
     // 保存 JavaVM
@@ -163,8 +163,6 @@ Java_me_aside0_minlan_NatmapPlugin_nativeExecuteNatmap(JNIEnv *env, jobject thiz
     (*env)->CallVoidMethod(env, callback, onResult, success, output);
     (*env)->DeleteLocalRef(env, output);
 
-    // 清理
-    (*env)->DeleteGlobalRef(env, callback_context.callback);
     callback_context.callback = NULL;
     callback_context.initialized = 0;
 
@@ -175,7 +173,7 @@ Java_me_aside0_minlan_NatmapPlugin_nativeExecuteNatmap(JNIEnv *env, jobject thiz
 }
 
 JNIEXPORT void JNICALL
-Java_me_aside0_minlan_NatmapPlugin_nativeStopExecution(JNIEnv *env, jobject thiz) {
+Java_me_aside0_exposedadb_natmap_NatmapPlugin_nativeStopExecution(JNIEnv *env, jobject thiz) {
     LOGI("Native stop execution called");
     set_stop_execution(1);
 }

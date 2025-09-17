@@ -122,20 +122,24 @@ unsk_run (void)
 }
 
 static void
-task_entry (void *data)
-{
-    for (;;) {
-        unsk_run ();
-        hev_task_sleep (5000);
-    }
-}
-
-static void
 unsk_kill (void)
 {
     timeout = 0;
     if (task) {
         hev_task_wakeup (task);
+    }
+}
+
+static void
+task_entry (void *data)
+{
+    for (;;) {
+        if (should_stop_execution() == 1) {
+            unsk_kill();
+            return;
+        }
+        unsk_run ();
+        hev_task_sleep (5000);
     }
 }
 
